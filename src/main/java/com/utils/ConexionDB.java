@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class ConexionDB {
-    private static String url = "jdbc:mysql://localhost:3306/SistemaComprobantes";
+    private static String url = "jdbc:mysql://localhost:3306/sistemacomprobantes";
     private static String driverName = "com.mysql.cj.jdbc.Driver";
     private static String username = "root";
     private static String password = "";
