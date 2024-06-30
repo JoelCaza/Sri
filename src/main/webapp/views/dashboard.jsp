@@ -35,8 +35,12 @@
             display: flex;
             flex-direction: column;
         }
+        .card form select,
         .card form input[type="file"] {
             margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         .card form button {
             background-color: #1E88E5;
@@ -82,6 +86,43 @@
 <body>
 <div class="container">
     <h1>Bienvenido al Sistema de Comprobantes</h1>
+
+    <div class="card">
+        <h2><i class="fas fa-search icon"></i>Buscar Comprobantes</h2>
+        <form action="${pageContext.request.contextPath}/comprobantes" method="get">
+            <input type="hidden" name="action" value="search">
+            <label for="tipo_comprobante">Tipo de Comprobante:</label>
+            <select name="tipo_comprobante" required>
+                <option value="Todos">Todos</option>
+                <option value="Factura">Factura</option>
+                <option value="Comprobante de Retención">Comprobante de Retención</option>
+            </select>
+            <label for="dia">Día:</label>
+            <select name="dia" required>
+                <option value="Todos">Todos</option>
+                <% for (int i = 1; i <= 31; i++) { %>
+                <option value="<%= i %>"><%= i %></option>
+                <% } %>
+            </select>
+            <label for="mes">Mes:</label>
+            <select name="mes" required>
+                <option value="Todos">Todos</option>
+                <% String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+                    for (int i = 0; i < meses.length; i++) { %>
+                <option value="<%= i + 1 %>"><%= meses[i] %></option>
+                <% } %>
+            </select>
+            <label for="año">Año:</label>
+            <select name="año" required>
+                <option value="Todos">Todos</option>
+                <% for (int i = 2020; i <= 2024; i++) { %>
+                <option value="<%= i %>"><%= i %></option>
+                <% } %>
+            </select>
+            <button type="submit"><i class="fas fa-search icon"></i>Buscar</button>
+        </form>
+    </div>
+
     <div class="card">
         <h2><i class="fas fa-upload icon"></i>Subir Comprobantes</h2>
         <form action="${pageContext.request.contextPath}/comprobantes" method="post" enctype="multipart/form-data">
@@ -89,6 +130,7 @@
             <button type="submit"><i class="fas fa-file-upload icon"></i>Subir Comprobantes</button>
         </form>
     </div>
+
     <h2><i class="fas fa-list icon"></i>Comprobantes Subidos</h2>
     <table>
         <tr>

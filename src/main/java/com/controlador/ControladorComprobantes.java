@@ -20,9 +20,22 @@ import java.util.List;
 @WebServlet("/comprobantes")
 @MultipartConfig
 public class ControladorComprobantes extends HttpServlet {
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
         ComprobanteDAO comprobanteDAO = new ComprobanteDAO();
-        List<Comprobante> comprobantes = comprobanteDAO.obtenerComprobantes();
+        List<Comprobante> comprobantes;
+
+        if ("search".equals(action)) {
+            String tipoComprobante = request.getParameter("tipo_comprobante");
+            String dia = request.getParameter("dia");
+            String mes = request.getParameter("mes");
+            String año = request.getParameter("año");
+            comprobantes = comprobanteDAO.buscarComprobantes(tipoComprobante, dia, mes, año);
+        } else {
+            comprobantes = comprobanteDAO.obtenerComprobantes();
+        }
+
         request.setAttribute("comprobantes", comprobantes);
         RequestDispatcher dispatcher = request.getRequestDispatcher("views/dashboard.jsp");
         dispatcher.forward(request, response);
@@ -70,7 +83,7 @@ public class ControladorComprobantes extends HttpServlet {
 
     private Comprobante parseComprobanteFromLine(String line) {
         String[] data = line.split("\t");
-        if (data.length < 11) {
+        if (data.length < 12) {
             System.out.println("Línea inválida: " + line); // Logging
             return null; // Línea no válida, ignorar
         }
@@ -88,7 +101,7 @@ public class ControladorComprobantes extends HttpServlet {
             comprobante.setValorSinImpuestos(parseDouble(data[8]));
             comprobante.setIva(parseDouble(data[9]));
             comprobante.setImporteTotal(parseDouble(data[10]));
-            comprobante.setNumeroDocumentoModificado(data.length > 11 ? data[11] : null);
+            comprobante.setNumeroDocumentoModificado(data[11]);
             return comprobante;
         } catch (Exception e) {
             System.out.println("Error al parsear línea: " + line);
