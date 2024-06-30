@@ -1,6 +1,5 @@
 package com.filtro;
 
-
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,33 +7,24 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter("/*") // Define que este filtro se aplicará a todas las URLs del proyecto
 public class RedireccionFiltro implements Filter {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        // Initialization code, if needed
-    }
-
+    // Método que se ejecuta cuando el filtro está en uso
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+        HttpServletRequest httpRequest = (HttpServletRequest) request; // Convertir ServletRequest a HttpServletRequest
+        HttpServletResponse httpResponse = (HttpServletResponse) response; // Convertir ServletResponse a HttpServletResponse
 
-        String contextPath = httpRequest.getContextPath();
-        String requestURI = httpRequest.getRequestURI();
+        String contextPath = httpRequest.getContextPath(); // Obtener el contexto de la aplicación
+        String requestURI = httpRequest.getRequestURI(); // Obtener la URI de la solicitud
 
         // Redirigir a /login si se accede a la raíz del proyecto
         if (requestURI.equals(contextPath + "/")) {
-            httpResponse.sendRedirect(contextPath + "/login");
-            return;
+            httpResponse.sendRedirect(contextPath + "/login"); // Redirigir a la página de login
+            return; // Detener la ejecución del filtro
         }
 
-        chain.doFilter(request, response);
-    }
-
-    @Override
-    public void destroy() {
-        // Cleanup code, if needed
+        chain.doFilter(request, response); // Pasar la solicitud y respuesta al siguiente filtro o recurso
     }
 }

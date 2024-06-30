@@ -12,12 +12,14 @@ import java.util.List;
 
 public class ComprobanteDAO {
 
+    // método para agregar un comprobante a la base de datos
     public void agregarComprobante(Comprobante comprobante) {
         String sql = "INSERT INTO comprobantes (ruc_emisor, razon_social_emisor, tipo_comprobante, serie_comprobante, clave_acceso, fecha_autorizacion, fecha_emision, identificacion_receptor, valor_sin_impuestos, iva, importe_total, numero_documento_modificado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection con = ConexionDB.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = ConexionDB.getConnection(); // obtener una conexión a la base de datos
+             PreparedStatement ps = con.prepareStatement(sql)) { // preparar la declaración SQL
 
+            // establecer los parámetros de la declaración SQL
             ps.setString(1, comprobante.getRucEmisor());
             ps.setString(2, comprobante.getRazonSocialEmisor());
             ps.setString(3, comprobante.getTipoComprobante());
@@ -31,16 +33,18 @@ public class ComprobanteDAO {
             ps.setDouble(11, comprobante.getImporteTotal());
             ps.setString(12, comprobante.getNumeroDocumentoModificado());
 
-            ps.executeUpdate();
+            ps.executeUpdate(); // ejecutar la declaración SQL
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // manejar excepciones
         }
     }
 
+    // método para obtener una lista de comprobantes según los criterios de búsqueda
     public List<Comprobante> obtenerComprobantesPorCriterios(String identificacionReceptor, String tipoComprobante, String dia, String mes, String año) {
         List<Comprobante> comprobantes = new ArrayList<>();
         StringBuilder sql = new StringBuilder("SELECT * FROM comprobantes WHERE identificacion_receptor = ?");
 
+        // construir la declaración SQL según los criterios de búsqueda
         if (tipoComprobante != null && !tipoComprobante.equals("Todos")) {
             sql.append(" AND tipo_comprobante = ?");
         }
@@ -54,10 +58,10 @@ public class ComprobanteDAO {
             sql.append(" AND YEAR(fecha_emision) = ?");
         }
 
-        try (Connection con = ConexionDB.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql.toString())) {
-            ps.setString(1, identificacionReceptor);
-            int paramIndex = 2;
+        try (Connection con = ConexionDB.getConnection(); // obtener una conexión a la base de datos
+             PreparedStatement ps = con.prepareStatement(sql.toString())) { // preparar la declaración SQL
+            ps.setString(1, identificacionReceptor); // establecer el primer parámetro
+            int paramIndex = 2; // índice para los parámetros adicionales
             if (tipoComprobante != null && !tipoComprobante.equals("Todos")) {
                 ps.setString(paramIndex++, tipoComprobante);
             }
@@ -70,7 +74,7 @@ public class ComprobanteDAO {
             if (año != null && !año.equals("Todos")) {
                 ps.setInt(paramIndex++, Integer.parseInt(año));
             }
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = ps.executeQuery()) { // ejecutar la consulta SQL
                 while (rs.next()) {
                     Comprobante comprobante = new Comprobante();
                     comprobante.setId(rs.getInt("id"));
@@ -87,13 +91,13 @@ public class ComprobanteDAO {
                     comprobante.setImporteTotal(rs.getDouble("importe_total"));
                     comprobante.setNumeroDocumentoModificado(rs.getString("numero_documento_modificado"));
 
-                    comprobantes.add(comprobante);
+                    comprobantes.add(comprobante); // agregar el comprobante a la lista
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace(); // manejar excepciones
         }
 
-        return comprobantes;
+        return comprobantes; // retornar la lista de comprobantes
     }
 }

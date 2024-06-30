@@ -5,15 +5,26 @@
     <title>Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
             background: linear-gradient(135deg, #1E88E5, #1565C0);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            animation: fadeIn 1s ease-in-out;
         }
+
         .card {
             background-color: white;
             border-radius: 10px;
@@ -22,11 +33,15 @@
             width: 100%;
             max-width: 400px;
             text-align: center;
+            animation: fadeIn 1.5s ease-in-out;
         }
+
         .card h2 {
             margin-bottom: 20px;
             color: #1E88E5;
+            animation: fadeIn 2s ease-in-out;
         }
+
         .card form input[type="text"],
         .card form input[type="password"],
         .card form input[type="email"],
@@ -37,7 +52,16 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            transition: box-shadow 0.3s;
         }
+
+        .card form input[type="text"]:focus,
+        .card form input[type="password"]:focus,
+        .card form input[type="email"]:focus,
+        .card form input[type="date"]:focus {
+            box-shadow: 0 0 5px rgba(30, 136, 229, 0.5);
+        }
+
         .card form input[type="submit"] {
             background-color: #1E88E5;
             color: white;
@@ -45,29 +69,38 @@
             border: none;
             cursor: pointer;
             border-radius: 4px;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.3s;
             width: 100%;
         }
+
         .card form input[type="submit"]:hover {
             background-color: #1565C0;
+            transform: scale(1.05);
         }
+
         .alert {
             color: red;
             margin-top: 10px;
         }
+
         .success {
             color: green;
             margin-top: 10px;
         }
+
         .card p {
             margin-top: 20px;
         }
+
         .card a {
             color: #1E88E5;
             text-decoration: none;
+            transition: color 0.3s;
         }
+
         .card a:hover {
             text-decoration: underline;
+            color: #1565C0;
         }
     </style>
 </head>
