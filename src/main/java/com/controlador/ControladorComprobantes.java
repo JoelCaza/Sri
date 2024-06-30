@@ -28,11 +28,11 @@ public class ControladorComprobantes extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         Part filePart = request.getPart("archivo");
         InputStream fileContent = filePart.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(fileContent));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fileContent, "UTF-8"));
         String line;
         boolean isFirstLine = true;
 
@@ -61,11 +61,11 @@ public class ControladorComprobantes extends HttpServlet {
 
         Comprobante comprobante = new Comprobante();
         comprobante.setRucEmisor(data[0]);
-        comprobante.setRazonSocialEmisor(data[1]);
-        comprobante.setTipoComprobante(data[2]);
+        comprobante.setRazonSocialEmisor(replaceSpecialCharacters(data[1], true));
+        comprobante.setTipoComprobante(replaceSpecialCharacters(data[2], false));
         comprobante.setSerieComprobante(data[3]);
         comprobante.setClaveAcceso(data[4]);
-        comprobante.setFechaAutorizacion(convertToDate(data[5]));
+        comprobante.setFechaAutorizacion(convertToDateTime(data[5]));
         comprobante.setFechaEmision(convertToDate(data[6]));
         comprobante.setIdentificacionReceptor(data[7]);
         comprobante.setValorSinImpuestos(parseDouble(data[8]));
@@ -73,6 +73,17 @@ public class ControladorComprobantes extends HttpServlet {
         comprobante.setImporteTotal(parseDouble(data[10]));
         comprobante.setNumeroDocumentoModificado(data[11]);
         return comprobante;
+    }
+
+    private String replaceSpecialCharacters(String text, boolean isRazonSocial) {
+        if (text == null) {
+            return null;
+        }
+        if (isRazonSocial) {
+            return text.replace("�", "Ñ");
+        } else {
+            return text.replace("�", "ó");
+        }
     }
 
     private java.sql.Date convertToDate(String dateStr) {
@@ -85,7 +96,21 @@ public class ControladorComprobantes extends HttpServlet {
             return new java.sql.Date(parsed.getTime());
         } catch (ParseException e) {
             e.printStackTrace();
-            return null; // Manejar el error adecuadamente
+            return null;
+        }
+    }
+
+    private java.sql.Timestamp convertToDateTime(String dateTimeStr) {
+        if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
+            return null;
+        }
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        try {
+            Date parsed = format.parse(dateTimeStr);
+            return new java.sql.Timestamp(parsed.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -97,7 +122,7 @@ public class ControladorComprobantes extends HttpServlet {
             return Double.parseDouble(numberStr);
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            return 0.0; // Manejar el error adecuadamente
+            return 0.0;
         }
     }
 }

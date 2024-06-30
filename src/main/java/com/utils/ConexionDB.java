@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class ConexionDB {
-    private static String url = "jdbc:mysql://localhost:3306/sistemacomprobantes";
+    private static String url = "jdbc:mysql://localhost:3306/SistemaComprobantes?useUnicode=true&characterEncoding=UTF-8";
     private static String driverName = "com.mysql.cj.jdbc.Driver";
     private static String username = "root";
     private static String password = "";
@@ -24,15 +24,5 @@ public class ConexionDB {
             ex.printStackTrace();
         }
         return con;
-    }
-
-    // Clase de prueba para verificar la conexión a la base de datos
-    public static void main(String[] args) {
-        Connection con = ConexionDB.getConnection();
-        if (con != null) {
-            System.out.println("Conexión a la base de datos exitosa.");
-        } else {
-            System.out.println("Error al conectar a la base de datos.");
-        }
     }
 }

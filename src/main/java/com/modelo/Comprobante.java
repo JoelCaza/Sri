@@ -18,7 +18,6 @@ public class Comprobante {
     private String numeroDocumentoModificado;
 
     // Getters y setters
-
     public int getId() {
         return id;
     }

@@ -1,6 +1,5 @@
 package com.controlador;
 
-
 import java.io.IOException;
 import com.dao.UsuarioDAO;
 import jakarta.servlet.RequestDispatcher;
@@ -23,7 +22,7 @@ public class ControladorLogin extends HttpServlet {
         if (isValidUser) {
             HttpSession session = request.getSession();
             session.setAttribute("username", username);
-            response.sendRedirect("views/dashboard.jsp");
+            response.sendRedirect(request.getContextPath() + "/comprobantes");
         } else {
             request.setAttribute("errorMessage", "Credenciales inválidas");
             RequestDispatcher dispatcher = request.getRequestDispatcher("views/login.jsp");
