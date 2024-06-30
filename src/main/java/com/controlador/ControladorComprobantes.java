@@ -31,10 +31,19 @@ public class ControladorComprobantes extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         Part filePart = request.getPart("archivo");
+        if (filePart == null || filePart.getSize() == 0) {
+            request.setAttribute("errorMessage", "El archivo no se pudo cargar o está vacío.");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("views/dashboard.jsp");
+            dispatcher.forward(request, response);
+            return;
+        }
+
         InputStream fileContent = filePart.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(fileContent, "UTF-8"));
         String line;
         boolean isFirstLine = true;
+        int successfulLines = 0;
+        int errorLines = 0;
 
         while ((line = reader.readLine()) != null) {
             if (isFirstLine) {
@@ -47,32 +56,45 @@ public class ControladorComprobantes extends HttpServlet {
             if (comprobante != null) {
                 ComprobanteDAO comprobanteDAO = new ComprobanteDAO();
                 comprobanteDAO.agregarComprobante(comprobante);
+                successfulLines++;
+            } else {
+                errorLines++;
             }
         }
+
+        request.setAttribute("successMessage", "Se procesaron " + successfulLines + " líneas correctamente.");
+        request.setAttribute("errorMessage", "Hubo errores en " + errorLines + " líneas.");
 
         doGet(request, response);
     }
 
     private Comprobante parseComprobanteFromLine(String line) {
         String[] data = line.split("\t");
-        if (data.length < 12) {
+        if (data.length < 11) {
+            System.out.println("Línea inválida: " + line); // Logging
             return null; // Línea no válida, ignorar
         }
 
-        Comprobante comprobante = new Comprobante();
-        comprobante.setRucEmisor(data[0]);
-        comprobante.setRazonSocialEmisor(replaceSpecialCharacters(data[1], true));
-        comprobante.setTipoComprobante(replaceSpecialCharacters(data[2], false));
-        comprobante.setSerieComprobante(data[3]);
-        comprobante.setClaveAcceso(data[4]);
-        comprobante.setFechaAutorizacion(convertToDateTime(data[5]));
-        comprobante.setFechaEmision(convertToDate(data[6]));
-        comprobante.setIdentificacionReceptor(data[7]);
-        comprobante.setValorSinImpuestos(parseDouble(data[8]));
-        comprobante.setIva(parseDouble(data[9]));
-        comprobante.setImporteTotal(parseDouble(data[10]));
-        comprobante.setNumeroDocumentoModificado(data[11]);
-        return comprobante;
+        try {
+            Comprobante comprobante = new Comprobante();
+            comprobante.setRucEmisor(data[0]);
+            comprobante.setRazonSocialEmisor(replaceSpecialCharacters(data[1], true));
+            comprobante.setTipoComprobante(replaceSpecialCharacters(data[2], false));
+            comprobante.setSerieComprobante(data[3]);
+            comprobante.setClaveAcceso(data[4]);
+            comprobante.setFechaAutorizacion(convertToDateTime(data[5]));
+            comprobante.setFechaEmision(convertToDate(data[6]));
+            comprobante.setIdentificacionReceptor(data[7]);
+            comprobante.setValorSinImpuestos(parseDouble(data[8]));
+            comprobante.setIva(parseDouble(data[9]));
+            comprobante.setImporteTotal(parseDouble(data[10]));
+            comprobante.setNumeroDocumentoModificado(data.length > 11 ? data[11] : null);
+            return comprobante;
+        } catch (Exception e) {
+            System.out.println("Error al parsear línea: " + line);
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private String replaceSpecialCharacters(String text, boolean isRazonSocial) {
@@ -95,6 +117,7 @@ public class ControladorComprobantes extends HttpServlet {
             Date parsed = format.parse(dateStr);
             return new java.sql.Date(parsed.getTime());
         } catch (ParseException e) {
+            System.out.println("Error al parsear la fecha: " + dateStr);
             e.printStackTrace();
             return null;
         }
@@ -109,6 +132,7 @@ public class ControladorComprobantes extends HttpServlet {
             Date parsed = format.parse(dateTimeStr);
             return new java.sql.Timestamp(parsed.getTime());
         } catch (ParseException e) {
+            System.out.println("Error al parsear la fecha y hora: " + dateTimeStr);
             e.printStackTrace();
             return null;
         }
@@ -121,6 +145,7 @@ public class ControladorComprobantes extends HttpServlet {
         try {
             return Double.parseDouble(numberStr);
         } catch (NumberFormatException e) {
+            System.out.println("Error al parsear el número: " + numberStr);
             e.printStackTrace();
             return 0.0;
         }
