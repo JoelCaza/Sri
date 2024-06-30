@@ -1,7 +1,8 @@
 package com.controlador;
 
-import com.modelo.Comprobante;
 import com.dao.ComprobanteDAO;
+import com.modelo.Comprobante;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -9,6 +10,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 
 import java.io.*;
@@ -20,28 +22,26 @@ import java.util.List;
 @WebServlet("/comprobantes")
 @MultipartConfig
 public class ControladorComprobantes extends HttpServlet {
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String action = request.getParameter("action");
+        HttpSession session = request.getSession();
+        String identificacionReceptor = (String) session.getAttribute("ruc"); // Asumiendo que el RUC se almacena en la sesión
+
+        String tipoComprobante = request.getParameter("tipo_comprobante");
+        String dia = request.getParameter("dia");
+        String mes = request.getParameter("mes");
+        String año = request.getParameter("año");
+
         ComprobanteDAO comprobanteDAO = new ComprobanteDAO();
-        List<Comprobante> comprobantes;
-
-        if ("search".equals(action)) {
-            String tipoComprobante = request.getParameter("tipo_comprobante");
-            String dia = request.getParameter("dia");
-            String mes = request.getParameter("mes");
-            String año = request.getParameter("año");
-            comprobantes = comprobanteDAO.buscarComprobantes(tipoComprobante, dia, mes, año);
-        } else {
-            comprobantes = comprobanteDAO.obtenerComprobantes();
-        }
-
+        List<Comprobante> comprobantes = comprobanteDAO.obtenerComprobantesPorCriterios(identificacionReceptor, tipoComprobante, dia, mes, año);
         request.setAttribute("comprobantes", comprobantes);
         RequestDispatcher dispatcher = request.getRequestDispatcher("views/dashboard.jsp");
         dispatcher.forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String identificacionReceptor = (String) session.getAttribute("ruc"); // Obtener la identificación del receptor desde la sesión
+
         request.setCharacterEncoding("UTF-8");
         Part filePart = request.getPart("archivo");
         if (filePart == null || filePart.getSize() == 0) {
@@ -65,7 +65,7 @@ public class ControladorComprobantes extends HttpServlet {
                     continue; // Ignorar la primera línea si contiene encabezados
                 }
             }
-            Comprobante comprobante = parseComprobanteFromLine(line);
+            Comprobante comprobante = parseComprobanteFromLine(line, identificacionReceptor);
             if (comprobante != null) {
                 ComprobanteDAO comprobanteDAO = new ComprobanteDAO();
                 comprobanteDAO.agregarComprobante(comprobante);
@@ -81,9 +81,9 @@ public class ControladorComprobantes extends HttpServlet {
         doGet(request, response);
     }
 
-    private Comprobante parseComprobanteFromLine(String line) {
+    private Comprobante parseComprobanteFromLine(String line, String identificacionReceptor) {
         String[] data = line.split("\t");
-        if (data.length < 12) {
+        if (data.length < 11) {
             System.out.println("Línea inválida: " + line); // Logging
             return null; // Línea no válida, ignorar
         }
@@ -97,11 +97,11 @@ public class ControladorComprobantes extends HttpServlet {
             comprobante.setClaveAcceso(data[4]);
             comprobante.setFechaAutorizacion(convertToDateTime(data[5]));
             comprobante.setFechaEmision(convertToDate(data[6]));
-            comprobante.setIdentificacionReceptor(data[7]);
+            comprobante.setIdentificacionReceptor(identificacionReceptor); // Setear la identificación del receptor desde la sesión
             comprobante.setValorSinImpuestos(parseDouble(data[8]));
             comprobante.setIva(parseDouble(data[9]));
             comprobante.setImporteTotal(parseDouble(data[10]));
-            comprobante.setNumeroDocumentoModificado(data[11]);
+            comprobante.setNumeroDocumentoModificado(data.length > 11 ? data[11] : null);
             return comprobante;
         } catch (Exception e) {
             System.out.println("Error al parsear línea: " + line);

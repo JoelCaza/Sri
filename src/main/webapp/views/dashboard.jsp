@@ -81,30 +81,38 @@
         .icon {
             margin-right: 5px;
         }
+        .alert {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Bienvenido al Sistema de Comprobantes</h1>
+    <p><i class="fas fa-user"></i> ${sessionScope.nombre} (${sessionScope.ruc}) <a href="${pageContext.request.contextPath}/logout">Salir</a></p>
 
     <div class="card">
         <h2><i class="fas fa-search icon"></i>Buscar Comprobantes</h2>
         <form action="${pageContext.request.contextPath}/comprobantes" method="get">
-            <input type="hidden" name="action" value="search">
-            <label for="tipo_comprobante">Tipo de Comprobante:</label>
+            <label>Tipo de Comprobante:</label>
             <select name="tipo_comprobante" required>
                 <option value="Todos">Todos</option>
                 <option value="Factura">Factura</option>
                 <option value="Comprobante de Retención">Comprobante de Retención</option>
             </select>
-            <label for="dia">Día:</label>
+            <label>Día:</label>
             <select name="dia" required>
                 <option value="Todos">Todos</option>
                 <% for (int i = 1; i <= 31; i++) { %>
                 <option value="<%= i %>"><%= i %></option>
                 <% } %>
             </select>
-            <label for="mes">Mes:</label>
+            <label>Mes:</label>
             <select name="mes" required>
                 <option value="Todos">Todos</option>
                 <% String[] meses = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
@@ -112,7 +120,7 @@
                 <option value="<%= i + 1 %>"><%= meses[i] %></option>
                 <% } %>
             </select>
-            <label for="año">Año:</label>
+            <label>Año:</label>
             <select name="año" required>
                 <option value="Todos">Todos</option>
                 <% for (int i = 2020; i <= 2024; i++) { %>
@@ -130,6 +138,13 @@
             <button type="submit"><i class="fas fa-file-upload icon"></i>Subir Comprobantes</button>
         </form>
     </div>
+
+    <% if (request.getAttribute("successMessage") != null) { %>
+    <p class="success"><i class="fas fa-check-circle"></i> <%= request.getAttribute("successMessage") %></p>
+    <% } %>
+    <% if (request.getAttribute("errorMessage") != null) { %>
+    <p class="alert"><i class="fas fa-exclamation-triangle"></i> <%= request.getAttribute("errorMessage") %></p>
+    <% } %>
 
     <h2><i class="fas fa-list icon"></i>Comprobantes Subidos</h2>
     <table>
@@ -171,7 +186,7 @@
         } else {
         %>
         <tr>
-            <td colspan="12" class="no-data">No hay comprobantes disponibles.</td>
+            <td colspan="12" class="no-data">No se encontraron comprobantes.</td>
         </tr>
         <%
             }

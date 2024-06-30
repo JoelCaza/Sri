@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Registro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -73,11 +73,15 @@
 </head>
 <body>
 <div class="card">
-    <h2><i class="fas fa-user-lock"></i> Login</h2>
-    <form action="${pageContext.request.contextPath}/login" method="post">
-        <input type="text" name="username" placeholder="RUC (Username)" required>
+    <h2><i class="fas fa-user-plus"></i> Registro</h2>
+    <form action="${pageContext.request.contextPath}/registro" method="post">
+        <input type="text" name="ruc" placeholder="RUC (Username)" required>
         <input type="password" name="password" placeholder="Password" required>
-        <input type="submit" value="Login">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="date" name="fecha_nacimiento" required>
+        <input type="submit" value="Registrar">
     </form>
     <% if (request.getAttribute("errorMessage") != null) { %>
     <p class="alert"><i class="fas fa-exclamation-triangle"></i> <%= request.getAttribute("errorMessage") %></p>
@@ -85,7 +89,7 @@
     <% if (request.getAttribute("successMessage") != null) { %>
     <p class="success"><i class="fas fa-check-circle"></i> <%= request.getAttribute("successMessage") %></p>
     <% } %>
-    <p>¿No tienes una cuenta? <a href="${pageContext.request.contextPath}/registro">Regístrate aquí</a></p>
+    <p>¿Ya tienes una cuenta? <a href="${pageContext.request.contextPath}/login">Inicia sesión aquí</a></p>
 </div>
 </body>
 </html>

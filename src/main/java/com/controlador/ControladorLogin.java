@@ -2,6 +2,7 @@ package com.controlador;
 
 import java.io.IOException;
 import com.dao.UsuarioDAO;
+import com.modelo.Usuario;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,11 +18,13 @@ public class ControladorLogin extends HttpServlet {
         String password = request.getParameter("password");
 
         UsuarioDAO usuarioDAO = new UsuarioDAO();
-        boolean isValidUser = usuarioDAO.validarUsuario(username, password);
+        Usuario usuario = usuarioDAO.validarUsuario(username, password);
 
-        if (isValidUser) {
+        if (usuario != null) {
             HttpSession session = request.getSession();
-            session.setAttribute("username", username);
+            session.setAttribute("ruc", usuario.getRuc());
+            session.setAttribute("nombre", usuario.getNombre());
+            session.setAttribute("apellido", usuario.getApellido());
             response.sendRedirect(request.getContextPath() + "/comprobantes");
         } else {
             request.setAttribute("errorMessage", "Credenciales inválidas");
